@@ -1,0 +1,24 @@
+{
+  "name": "musicstore",
+  "version": "1.0.0",
+  "description": "Little store where you can buy or rent CDs and Vinyls",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kam237zasada/MusicStore.git"
+  },
+  "author": "Kamil Zasada",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kam237zasada/MusicStore/issues"
+  },
+  "homepage": "https://github.com/kam237zasada/MusicStore#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "joi": "^14.3.1",
+    "mongoose": "^5.8.10"
+  }
+}
