@@ -1,7 +1,6 @@
 const Joi = require('joi');
 const mongoose = require('mongoose');
 
-
 const customerSchema = new mongoose.Schema({
     login: {
         type: String,
@@ -71,22 +70,17 @@ const customerSchema = new mongoose.Schema({
             message: props => `${props.value} is not a valid postal code for this country`
         },
         default: ""
+    },
+    telephone: {
+        type: Number,
+        maxlength: 15
+    },
+    dateCreated: {
+        type: Date,
+        default: Date.now
     }
 })
 
-function postalCodePattern(country) {
-    if (country === "Austria" || country === "Belgium" || country === "Bulgaria" || country === "Cyprus" || country === "Denmark" || country === "Hungary" || country === "Netherlands" || country === "Slovenia") { return /\d{4}/ }
-    else if (country ==="Croatia" || country === "Estonia" || country ==="Finland" || country === "France" ||country === "Germany" || country === "Italy" || country === "Lithuania" || country === "Spain") { return /\d{5}/ }
-    else if (country === "Czech Republic" || country === "Greece" || country === "Slovakia" || country === "Sweden") { return /\d{3}\s\d{2}/ }
-    else if (country === "Poland") { return /\d{2}-\d{3}/ }
-    else if (country === "Portugal") { return /\d{4}-\d{3}/ }
-    else if (country === "Romania") { return /\d{6}/ }
-    else if (country === "Ireland") { return }
-    else if (country === "Malta") { return /\w{3}/ }
-    else if (country === "Luxembourg") { return /[L]-\d{4}/ }
-    else if (country === "Latvia") { return /[L][V]-\d{4}/ }
-    else if (country === "") { return "" }
-}
 
 const Customer = mongoose.model("Customer", customerSchema);
 
@@ -100,6 +94,22 @@ function validateCustomer(customer) {
     }
     return Joi.validate(customer, schema);
 };
+function validateCustomerUpdate(customer) {
+    const schema = {
+        login: Joi.string().min(5).max(50).required(),
+        email: Joi.string().min(3).max(100).email().required(),
+        name: Joi.string().min(3).max(100).required()
+    }
+    return Joi.validate(customer, schema);
+};
+
+function validatePassword(customer) {
+    const schema = {
+        password: Joi.string().min(8).max(100).required(),
+        confirmPassword: Joi.string().min(8).max(100).required(),
+    }
+    return Joi.validate(customer, schema);
+}
 
 function validateAddress(customer) {
     const schema = {
@@ -135,12 +145,15 @@ function validateAddress(customer) {
             then: Joi.string().regex(/\b[L]-\d{4}\b/).required()})
             .when('country' , {
             is: 'Latvia',
-            then: Joi.string().regex(/\b[L][V]-\d{4}\b/).required()})
+            then: Joi.string().regex(/\b[L][V]-\d{4}\b/).required()}),
+        telephone: Joi.string().min(7).max(15).required().regex(/[0-9]/)
         }
 
         return Joi.validate(customer, schema);
-}
+};
 
 exports.Customer = Customer;
 exports.validateCustomer = validateCustomer;
+exports.validateCustomerUpdate = validateCustomerUpdate;
+exports.validatePassword = validatePassword;
 exports.validateAddress = validateAddress;

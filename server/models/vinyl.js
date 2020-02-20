@@ -43,6 +43,10 @@ const Vinyl = mongoose.model('Vinyl', new mongoose.Schema({
         type: Number,
         required: true
     },
+    country: {
+        type: String,
+        required: true
+    },
     description: {
         type: String,
         maxlength: 500
@@ -72,11 +76,14 @@ const Vinyl = mongoose.model('Vinyl', new mongoose.Schema({
     condition: {
         type: conditionSchema,
         required: () => this.forRent,
+    },
+    dateCreated: {
+        type: Date,
+        default: Date.now
     }
-
 }));
 
-function validateVinyls(vinyl) {
+function validateVinyl(vinyl) {
     const schema = {
         genreId: Joi.objectId().required(),
         label: Joi.string().required(),
@@ -87,16 +94,45 @@ function validateVinyls(vinyl) {
         author: Joi.string().max(255).required(),
         tracks: Joi.array().required(),
         year: Joi.number().integer().required(),
+        country: Joi.string().required(),
         description: Joi.string().max(500),
         forSell: Joi.boolean().required(),
-        price: Joi.number(),
-        amount: Joi.number(),
+        price: Joi.number().when('forSell', {
+            is: true,
+            then: Joi.number().required()
+        })
+        .when('forSell', {
+            is: false,
+            then: Joi.number().forbidden()
+        }),
+        amount: Joi.number().when('forSell', {
+            is: true,
+            then: Joi.number().required()
+        })
+        .when('forSell', {
+            is: false,
+            then: Joi.number().forbidden()
+        }),
         forRent: Joi.boolean().required(),
-        dailyRentalFee: Joi.number(),
-        conditionId: Joi.objectId(),
+        dailyRentalFee: Joi.number().when('forRent', {
+            is: true,
+            then: Joi.number().required()
+        })
+        .when('forRent', {
+            is: false,
+            then: Joi.number().forbidden()
+        }),
+        conditionId: Joi.string().when('forRent', {
+            is: true,
+            then: Joi.string().required()
+        })
+        .when('forRent', {
+            is: false,
+            then: Joi.string().forbidden()
+        }),
     };
     return Joi.validate(vinyl, schema)
 }
 
 exports.Vinyl = Vinyl;
-exports.validate = validateVinyls;
+exports.validateVinyl = validateVinyl;
